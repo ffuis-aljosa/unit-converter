@@ -1,21 +1,40 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package unitconverter;
 
-/**
- *
- * @author Korisnik
- */
+import java.awt.event.ItemEvent;
+import javax.swing.JOptionPane;
+
 public class ConverterForm extends javax.swing.JFrame {
 
-    /**
-     * Creates new form ConverterForm
-     */
+    UnitGroup selectedUnitGroup = null;
+
     public ConverterForm() {
         initComponents();
+
+        try {
+            UnitGroup mass = new UnitGroup("Mass",
+                    new String[]{"g", "kg", "lbs", "t"},
+                    new double[]{1, 1000, 453.59237, 1000000});
+            UnitGroup length = new UnitGroup("Legth",
+                    new String[]{"mm", "cm", "m", "km", "inch", "yard", "mile"},
+                    new double[]{1, 10, 1000, 1000000, 25.4, 914.4, 1609344});
+            UnitGroup energy = new UnitGroup("Energy",
+                    new String[]{"J", "cal", "kWh"},
+                    new double[]{1, 4.184, 3600000 });
+            UnitGroup power = new UnitGroup("Power", 
+                    new String[]{"W", "hp", "fppm"}, 
+                    new double[]{1, 745.699872, 0.0225969658});
+            UnitGroup volume = new UnitGroup("Volume", 
+                    new String[]{"cubic cm", "cubic dm", "cubic m", "l", "gallon", "barrel"}, 
+                    new double[]{1, 1000, 1000000, 1000, 3785.41178, 119240.471});
+
+            unitComboBox.addItem(mass);
+            unitComboBox.addItem(length);
+            unitComboBox.addItem(energy);
+            unitComboBox.addItem(power);
+            unitComboBox.addItem(volume);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -27,23 +46,51 @@ public class ConverterForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jCheckBox1 = new javax.swing.JCheckBox();
         unitComboBox = new javax.swing.JComboBox();
         firstUnitComboBox = new javax.swing.JComboBox();
         secondUnitComboBox = new javax.swing.JComboBox();
         firstUnitTextField = new javax.swing.JTextField();
         secondUnitTextFiled = new javax.swing.JTextField();
         convertButton = new javax.swing.JButton();
-
-        jCheckBox1.setText("jCheckBox1");
+        switchUnitsButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Unit Converter 3000");
         setResizable(false);
 
-        unitComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Mass", "Length", "Force" }));
+        unitComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                unitComboBoxItemStateChanged(evt);
+            }
+        });
+
+        firstUnitComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                firstUnitComboBoxItemStateChanged(evt);
+            }
+        });
+
+        secondUnitComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                secondUnitComboBoxItemStateChanged(evt);
+            }
+        });
+
+        secondUnitTextFiled.setEditable(false);
 
         convertButton.setText("Convert");
+        convertButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                convertButtonActionPerformed(evt);
+            }
+        });
+
+        switchUnitsButton.setText("Swich Units");
+        switchUnitsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                switchUnitsButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -61,7 +108,8 @@ public class ConverterForm extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(secondUnitComboBox, 0, 178, Short.MAX_VALUE)
-                            .addComponent(secondUnitTextFiled))))
+                            .addComponent(secondUnitTextFiled)))
+                    .addComponent(switchUnitsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -79,12 +127,57 @@ public class ConverterForm extends javax.swing.JFrame {
                     .addComponent(secondUnitTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(convertButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(switchUnitsButton)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void unitComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_unitComboBoxItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            selectedUnitGroup = (UnitGroup) evt.getItem();
+
+            firstUnitComboBox.removeAllItems();
+            secondUnitComboBox.removeAllItems();
+
+            for (String unit : selectedUnitGroup.getUnits()) {
+                firstUnitComboBox.addItem(unit);
+                secondUnitComboBox.addItem(unit);
+            }
+        }
+    }//GEN-LAST:event_unitComboBoxItemStateChanged
+
+    private void convertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertButtonActionPerformed
+        try {
+            double value = Double.parseDouble(firstUnitTextField.getText());
+
+            double converted = selectedUnitGroup.convert(value,
+                    firstUnitComboBox.getSelectedIndex(),
+                    secondUnitComboBox.getSelectedIndex());
+
+            secondUnitTextFiled.setText(converted + "");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Invalid number in input field");
+        }
+    }//GEN-LAST:event_convertButtonActionPerformed
+
+    private void firstUnitComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_firstUnitComboBoxItemStateChanged
+        secondUnitTextFiled.setText("");
+    }//GEN-LAST:event_firstUnitComboBoxItemStateChanged
+
+    private void secondUnitComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_secondUnitComboBoxItemStateChanged
+        secondUnitTextFiled.setText("");
+    }//GEN-LAST:event_secondUnitComboBoxItemStateChanged
+
+    private void switchUnitsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_switchUnitsButtonActionPerformed
+        int firstSelectedIndex = firstUnitComboBox.getSelectedIndex();
+        
+        firstUnitComboBox.setSelectedIndex(secondUnitComboBox.getSelectedIndex());
+        secondUnitComboBox.setSelectedIndex(firstSelectedIndex);
+    }//GEN-LAST:event_switchUnitsButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -112,7 +205,7 @@ public class ConverterForm extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(ConverterForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -125,9 +218,9 @@ public class ConverterForm extends javax.swing.JFrame {
     private javax.swing.JButton convertButton;
     private javax.swing.JComboBox firstUnitComboBox;
     private javax.swing.JTextField firstUnitTextField;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox secondUnitComboBox;
     private javax.swing.JTextField secondUnitTextFiled;
+    private javax.swing.JButton switchUnitsButton;
     private javax.swing.JComboBox unitComboBox;
     // End of variables declaration//GEN-END:variables
 }

@@ -3,36 +3,41 @@ package unitconverter;
 public class UnitGroup {
 
     private String name;
-    private String baseUnit;
-    private String[] otherUnits;
-    private float[] conversionTable;
+    private String[] units;
+    private double[] conversionTable;
 
-    public UnitGroup(String name, String baseUnit, String[] otherUnits, float[] conversionTable) throws Exception {
-        if (otherUnits.length != conversionTable.length) {
+    public UnitGroup(String name, String[] units, double[] conversionTable) throws Exception {
+        if (units.length != conversionTable.length) {
             throw new Exception("otherUnits and conversionTable must be of same length");
         }
 
         this.name = name;
-        this.baseUnit = baseUnit;
-        this.otherUnits = otherUnits;
+        this.units = units;
         this.conversionTable = conversionTable;
+    }
+    
+    public double convert(double value, int fromUnitIndex, int toUnitIndex) {
+        if (fromUnitIndex < 0 || fromUnitIndex > units.length 
+                || toUnitIndex < 0 || toUnitIndex > units.length)
+            throw new IndexOutOfBoundsException();
+        
+        if (fromUnitIndex == toUnitIndex)
+            return value;
+        
+        return value * conversionTable[fromUnitIndex] / conversionTable[toUnitIndex];
     }
 
     public String getName() {
         return name;
     }
 
-    public String[] getAllUnits() {
-        String[] allUnits = new String[otherUnits.length + 1];
-
-        allUnits[0] = baseUnit;
-
-        for (int i = 0; i < otherUnits.length; i++) {
-            allUnits[i + 1] = otherUnits[i];
-        }
-
-        return allUnits;
+    public String[] getUnits() {
+        return units;
     }
 
-    
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }
