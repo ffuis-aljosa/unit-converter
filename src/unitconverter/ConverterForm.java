@@ -26,12 +26,21 @@ public class ConverterForm extends javax.swing.JFrame {
             UnitGroup volume = new UnitGroup("Volume", 
                     new String[]{"cubic cm", "cubic dm", "cubic m", "l", "gallon", "barrel"}, 
                     new double[]{1, 1000, 1000000, 1000, 3785.41178, 119240.471});
+            
+            CurrencyLoader currencyLoader = new CurrencyLoader();
+            currencyLoader.loadCurrencies();
+            
+            UnitGroup currency = new UnitGroup("Currency",
+                    currencyLoader.getCurrencies(),
+                    currencyLoader.getExchangeRates()
+            );
 
             unitComboBox.addItem(mass);
             unitComboBox.addItem(length);
             unitComboBox.addItem(energy);
             unitComboBox.addItem(power);
             unitComboBox.addItem(volume);
+            unitComboBox.addItem(currency);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
